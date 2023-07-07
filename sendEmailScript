@@ -1,0 +1,47 @@
+#setLanguageLevel 4;
+
+EventData ed = getEventData();
+Integer personId = ed.getInputValue("personId").toInteger();
+String from = "superoffice@eos-schweiz.com";
+String to = "fabio.schneider@superoffice.ch";
+String toName = "Fabio Schneider";
+
+
+ReplyTemplate rt;
+rt.load(28);
+String orginalText = rt.getPlainBody(1);
+//String orginalText = rt.getHtmlBody(1);
+String emailSubject = rt.getSubject(1);
+
+NSDocumentAgent documentAgent;
+
+Integer encoding = 0; // see https://community.superoffice.com/documentation/sdk/SO.NetServer.Web.Services/html/T_SuperOffice_Data_GeneratorEncoding.htm
+
+Integer contactId = 0;
+Integer appointmentId = 0;
+Integer documentId = 0;
+Integer saleId = 0;
+Integer selectionId = 0;
+Integer projectId = 0;
+
+String cultureName = "";// empty is use current culture
+
+String replacedText = documentAgent.SubstituteTemplateVariables(orginalText, encoding, contactId, personId, appointmentId, documentId, saleId, selectionId, projectId, cultureName);
+
+print(replacedText);
+
+Void SendEmail(String from, String to, String toName, String emailSubject, String emailHtml)
+{
+  // Step 1 - Compose email
+  Email e;
+  e.setValue("from", from);
+  e.setValue("to", to);  // Just repeat e.setValue("to",...) with each further recipient
+  e.setValue("subject", emailSubject);
+  e.setValue("bodyHtml", emailHtml);  // Use e.setValue("body", bodyText) instead, if you need to send pure text emails
+  //e.setValue("X-Foo", "42");  // Add any other header
+   // Step 2 - Send email
+  e.send();
+  printLine("email sent.");
+}
+
+SendEmail(from, to, toName, emailSubject, replacedText);
